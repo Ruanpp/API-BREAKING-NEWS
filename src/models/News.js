@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const NewsSchema = new mongoose.Schema({
     title: {
-        type : String,
+        type: String,
         require: true,
     },
     text: {
@@ -18,15 +18,15 @@ const NewsSchema = new mongoose.Schema({
         default: Date.now(),
     },
     user: {
-type: mongoose.Schema.Types.ObjectId,
-ref: "User",
-required : true,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true,
     },
-    likes:{
+    likes: {
         type: Array,
         require: true,
     },
-    comments:{
+    comments: {
         type: Array,
         require: true,
     },
