@@ -1,4 +1,4 @@
-import { createService, findAllService, countNews, topNewsService, findByIdService, searchByTitleService, byUserServicice } from "../services/news.service.js"
+import { createService, findAllService, countNews, topNewsService, findByIdService, searchByTitleService, byUserServicice, upDateService } from "../services/news.service.js"
 
 export const create = async (req, res) => {
     try {
@@ -176,3 +176,28 @@ return res.send({
         res.status(500).send({ message: err.massage })
     };
 };
+
+export const upDate = async ( req, res) => {
+ try {
+ const { title, text, banner } = req.body;
+ const { id } = req.params;
+
+ if (!title && !banner && !text){
+    res.status(400).send({
+        message: "Subimit at least one field to update the pest",
+    });
+ }
+
+const news = await findByIdService(id);
+
+if (String(news.user._id) !== req.userId) {
+    return res.status(400).send({ message: "You din`t update this post",});
+}
+await upDateService(id, title, text, banner);
+
+return res.send({ message: "Post successfully updated!"});
+
+ } catch (err) {
+    res.status(500).send({ message: err.massage })
+};
+}

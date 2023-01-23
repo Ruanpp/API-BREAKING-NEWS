@@ -1,3 +1,4 @@
+import { text } from "express";
 import News from "../models/News.js"
 
 export const createService = (body) => News.create(body);
@@ -13,3 +14,5 @@ export const findByIdService = (id) => News.findById(id).populate("user");
 export const searchByTitleService = (title) => News.find({ title: { $regex: `${title || ""}`, $options: "i" }, }).sort({ _id: -1 }).populate("user");
 
 export const byUserServicice = (id) => News.find({ user: id }).sort({ _id: -1 }).populate("user");
+
+export const upDateService = (id, title, text, banner) => News.findOneAndUpdate( { _id: id },{title, text, banner },{ rawResult: true, } );
