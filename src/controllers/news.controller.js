@@ -1,4 +1,4 @@
-import { createService, findAllService, countNews, topNewsService, findByIdService, searchByTitleService } from "../services/news.service.js"
+import { createService, findAllService, countNews, topNewsService, findByIdService, searchByTitleService, byUserServicice } from "../services/news.service.js"
 
 export const create = async (req, res) => {
     try {
@@ -152,4 +152,27 @@ results: news.map((item) => ({
 } catch (err) {
     res.status(500).send({ message: err.massage })
 };
-}
+};
+
+export const byUser = async (req, res) => {
+    try{
+        const id = req.userId;
+const news = await byUserServicice(id);
+
+return res.send({
+    results: news.map((item) => ({
+        id: item._id,
+        title: item.title,
+        text: item.text,
+        banner: item.banner,
+        likes: item.likes,
+        comments: item.comments,
+        name: item.user.name,
+        username: item.user.username,
+        userAvatar: item.user.avatar,
+    })),
+    });
+    } catch (err) {
+        res.status(500).send({ message: err.massage })
+    };
+};
