@@ -1,4 +1,4 @@
-import { createService, findAllService, countNews, topNewsService, findByIdService, searchByTitleService, byUserServicice, upDateService } from "../services/news.service.js"
+import { createService, findAllService, countNews, topNewsService, findByIdService, searchByTitleService, byUserServicice, upDateService, eraseService, likeNewsService, deleteLikeNewsService } from "../services/news.service.js"
 
 export const create = async (req, res) => {
     try {
@@ -127,77 +127,116 @@ export const findById = async (req, res) => {
 };
 
 export const searchByTitle = async (req, res) => {
-try{
-  const { title } = req.query;
+    try {
+        const { title } = req.query;
 
-const news = await searchByTitleService(title); 
+        const news = await searchByTitleService(title);
 
-if (news.length === 0) {
-    return res.status(400).send({ message: "There are no news with this title", });
-}
-return res.send({
-results: news.map((item) => ({
-    id: item._id,
-    title: item.title,
-    text: item.text,
-    banner: item.banner,
-    likes: item.likes,
-    comments: item.comments,
-    name: item.user.name,
-    username: item.user.username,
-    userAvatar: item.user.avatar,
-})),
-});
+        if (news.length === 0) {
+            return res.status(400).send({ message: "There are no news with this title", });
+        }
+        return res.send({
+            results: news.map((item) => ({
+                id: item._id,
+                title: item.title,
+                text: item.text,
+                banner: item.banner,
+                likes: item.likes,
+                comments: item.comments,
+                name: item.user.name,
+                username: item.user.username,
+                userAvatar: item.user.avatar,
+            })),
+        });
 
-} catch (err) {
-    res.status(500).send({ message: err.massage })
-};
-};
-
-export const byUser = async (req, res) => {
-    try{
-        const id = req.userId;
-const news = await byUserServicice(id);
-
-return res.send({
-    results: news.map((item) => ({
-        id: item._id,
-        title: item.title,
-        text: item.text,
-        banner: item.banner,
-        likes: item.likes,
-        comments: item.comments,
-        name: item.user.name,
-        username: item.user.username,
-        userAvatar: item.user.avatar,
-    })),
-    });
     } catch (err) {
         res.status(500).send({ message: err.massage })
     };
 };
 
-export const upDate = async ( req, res) => {
- try {
- const { title, text, banner } = req.body;
- const { id } = req.params;
+export const byUser = async (req, res) => {
+    try {
+        const id = req.userId;
+        const news = await byUserServicice(id);
 
- if (!title && !banner && !text){
-    res.status(400).send({
-        message: "Subimit at least one field to update the pest",
-    });
- }
-
-const news = await findByIdService(id);
-
-if (String(news.user._id) !== req.userId) {
-    return res.status(400).send({ message: "You din`t update this post",});
-}
-await upDateService(id, title, text, banner);
-
-return res.send({ message: "Post successfully updated!"});
-
- } catch (err) {
-    res.status(500).send({ message: err.massage })
+        return res.send({
+            results: news.map((item) => ({
+                id: item._id,
+                title: item.title,
+                text: item.text,
+                banner: item.banner,
+                likes: item.likes,
+                comments: item.comments,
+                name: item.user.name,
+                username: item.user.username,
+                userAvatar: item.user.avatar,
+            })),
+        });
+    } catch (err) {
+        res.status(500).send({ message: err.massage })
+    };
 };
+
+export const upDate = async (req, res) => {
+    try {
+        const { title, text, banner } = req.body;
+        const { id } = req.params;
+
+        if (!title && !banner && !text) {
+            res.status(400).send({
+                message: "Subimit at least one field to update the News",
+            });
+        }
+
+        const news = await findByIdService(id);
+
+        if (String(news.user._id) !== req.userId) {
+            return res.status(400).send({ message: "You din`t update this News", });
+        }
+        await upDateService(id, title, text, banner);
+
+        return res.send({ message: "News successfully updated!" });
+
+    } catch (err) {
+        res.status(500).send({ message: err.massage })
+    };
+};
+
+export const erase = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const news = await findByIdService(id);
+
+        if (String(news.user._id) !== req.userId) {
+            return res.status(400).send({ message: "You din`t delete this News", });
+        }
+
+        await eraseService(id);
+
+        return res.send({ message: "News deleted successfully " });
+
+    } catch (err) {
+        res.status(500).send({ message: err.massage })
+    };
+}
+
+export const likeNews = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const userId = req.userId;
+
+        const newsLiked = await likeNewsService(id, userId);
+
+        if (!newsLiked) {
+            await deleteLikeNewsService(id, userId);
+            return res.status(200).send({ message: "Like successfully removed" });
+        } 
+
+        res.send({ message: " Like done successfully"}); 
+ 
+    } catch (err) { 
+        res.status(500).send({ message: err.massage })
+    };
+
 }
